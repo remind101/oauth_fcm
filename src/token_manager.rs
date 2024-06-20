@@ -67,6 +67,29 @@ impl TokenManager {
         })
     }
 
+    /// Creates a new `TokenManager` from a json credential as a `&str`. Useful for when using environment variables
+    /// in a containerized environment
+    ///
+    /// # Arguments
+    ///
+    /// * `google_credentials_location` - A string slice with the credential json.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the Google credentials could not be read or parsed.
+    #[instrument(level = "info")]
+    pub fn new_from_credentials(service_account_key_json: &str) -> Result<Self, FcmError> {
+        info!("Creating new TokenManager");
+        let service_account_key: ServiceAccountKey =
+            serde_json::from_str(&service_account_key_json)?;
+
+        Ok(TokenManager {
+            token: None,
+            expires_at: None,
+            service_account_key,
+        })
+    }
+
     /// Returns the current OAuth token.
     ///
     /// This function checks if the current token is expired and refreshes it if necessary.
